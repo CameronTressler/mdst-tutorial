@@ -18,16 +18,30 @@ This should load the data, perform preprocessing, and save the output to the dat
 
 """
 
+import pandas as pd
+import math
+import statistics
+import re
+
+from pandas.core.frame import DataFrame
+
 def remove_percents(df, col):
+    df[col] = [float(item[:-1]) if type(item) is str and item != '' else item for item in df[col]]
     return df
 
 def fill_zero_iron(df):
+    df['Iron (% DV)'] = [0 if math.isnan(float(item)) else item for item in df['Iron (% DV)']] 
     return df
-    
+
 def fix_caffeine(df):
+    avg = statistics.mean([item for item in df['Caffeine (mg)'] if type(item) is float])
+    df['Caffeine (mg)'] = [item if type(item) is float and not math.isnan(float(item))
+                                   else avg for item in df['Caffeine (mg)']]
     return df
 
 def standardize_names(df):
+    df.columns = [re.sub(r' \([^)]*\)', '', name.lower()) for name in df.columns]
+
     return df
 
 def fix_strings(df, col):
@@ -37,7 +51,9 @@ def fix_strings(df, col):
 def main():
     
     # first, read in the raw data
-    df = pd.read_csv('../data/starbucks.csv')
+    df = pd.read_csv('data/starbucks.csv')
+
+    print(df)
     
     # the columns below represent percent daily value and are stored as strings with a percent sign, e.g. '0%'
     # complete the remove_percents function to remove the percent symbol and convert the columns to a numeric type
@@ -66,7 +82,7 @@ def main():
     
     # now that the data is all clean, save your output to the `data` folder as 'starbucks_clean.csv'
     # you will use this file in checkpoint 2
-    
+    df.to_csv('data/starbucks_clean.csv')
     
 
 if __name__ == "__main__":
