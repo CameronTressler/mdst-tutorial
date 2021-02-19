@@ -45,6 +45,7 @@ def standardize_names(df):
     return df
 
 def fix_strings(df, col):
+    df[col] = [re.sub(r'[^a-zA-Z0-9() ]', '', item.lower()) for item in df[col]]
     return df
 
 
